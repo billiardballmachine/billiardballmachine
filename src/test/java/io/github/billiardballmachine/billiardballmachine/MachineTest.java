@@ -2,25 +2,37 @@ package io.github.billiardballmachine.billiardballmachine;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MachineTest {
 
     @Test
     public void testUpdateMovesBallHorizontally() {
-        Ball ball = new Ball(CardinalDirection.EAST);
         Machine machine = Machine.emptyMachine();
-        machine.addBall(ball, new Machine.Position(0, 0));
+        machine.addBall(new Ball(CardinalDirection.EAST), new Machine.Position(0, 0));
         machine.update();
-        assertEquals(new Machine.Position(1, 0), machine.getPosition(ball));
+        assertEquals(new Ball(CardinalDirection.EAST), machine.getBallAt(new Machine.Position(1, 0)));
     }
 
     @Test
     public void testUpdateMovesBallVertically() {
-        Ball ball = new Ball(CardinalDirection.NORTH);
         Machine machine = Machine.emptyMachine();
-        machine.addBall(ball, new Machine.Position(0, 0));
+        machine.addBall(new Ball(CardinalDirection.NORTH), new Machine.Position(0, 0));
         machine.update();
-        assertEquals(new Machine.Position(0, -1), machine.getPosition(ball));
+        assertEquals(new Ball(CardinalDirection.NORTH), machine.getBallAt(new Machine.Position(0, -1)));
     }
+
+    @Test
+    public void testUpdateBallsCollideAtPerpendicularAndDeflect() {
+        Machine machine = Machine.emptyMachine();
+        machine.addBall(new Ball(CardinalDirection.EAST ), new Machine.Position(0,  0));
+        machine.addBall(new Ball(CardinalDirection.SOUTH), new Machine.Position(1, -1));
+        machine.update();
+        assertAll(
+                () -> assertEquals(new Ball(CardinalDirection.SOUTH), machine.getBallAt(new Machine.Position(0,  1))),
+                () -> assertEquals(new Ball(CardinalDirection.EAST),  machine.getBallAt(new Machine.Position(2, -1)))
+        );
+    }
+
 }

@@ -1,17 +1,15 @@
 package io.github.billiardballmachine.billiardballmachine;
 
-class Ball {
-    private CardinalDirection directionOfMovement;
-
-    Ball(CardinalDirection directionOfMovement) {
-        this.directionOfMovement = directionOfMovement;
+record Ball(CardinalDirection directionOfMovement) {
+    boolean isMovingInDirection(CardinalDirection direction) {
+        return directionOfMovement.equals(direction);
     }
 
-    CardinalDirection getDirectionOfMovement() {
-        return directionOfMovement;
+    boolean isMovingHorizontally() {
+        return directionOfMovement.isHorizontal();
     }
 
-    void setDirectionOfMovement(CardinalDirection directionOfMovement) {
-        this.directionOfMovement = directionOfMovement;
+    boolean isMovingVertically() {
+        return directionOfMovement.isVertical();
     }
 }
