@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'application'
 }
 
 group 'io.github.billiardballmachine'
@@ -15,6 +15,11 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
+
+application {
+    mainClass = 'io.github.billiardballmachine.billiardballmachine.Main'
+}
+
 
 test {
     useJUnitPlatform()
