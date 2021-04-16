@@ -10,7 +10,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -61,9 +60,10 @@ public class MachineGridPanel extends JPanel {
         var yCoords = gridData.yData().gridCoords();
 
         // Draw gridlines
+        g2.setStroke(new BasicStroke(1));
+        g2.setColor(Color.LIGHT_GRAY);
         for (double x : xCoords) {
             var lineX = (int) x;
-            g2.setColor(Color.LIGHT_GRAY);
             g2.drawLine(lineX, 0, lineX, height);
         }
 
@@ -148,7 +148,21 @@ public class MachineGridPanel extends JPanel {
         g.drawImage(ballImage, transform, null);
     }
 
-    private void paintWall(Graphics g, DiagonalWall wall, double x, double y) {
-
+    private void paintWall(Graphics2D g, DiagonalWall wall, double x, double y) {
+        double leftY = 0;
+        double rightY = 0;
+        switch (wall) {
+            case NORTHWEST_TO_SOUTHEAST -> {
+                leftY = y;
+                rightY = y + gridUnitLength;
+            }
+            case SOUTHWEST_TO_NORTHEAST -> {
+                leftY = y + gridUnitLength;
+                rightY = y;
+            }
+        }
+        g.setStroke(new BasicStroke(3));
+        g.setColor(Color.BLACK);
+        g.drawLine((int)x, (int)leftY, (int)(x + gridUnitLength), (int)rightY);
     }
 }

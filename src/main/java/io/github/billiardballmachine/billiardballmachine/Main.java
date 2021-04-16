@@ -5,7 +5,6 @@ import io.github.billiardballmachine.billiardballmachine.ui.MachineGridPanel;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -24,7 +23,9 @@ public class Main {
     public static void main(String[] args) throws IOException {
         var machine = Machine.emptyMachine();
         var ballImage = ImageIO.read(Main.class.getResource("billiard_ball.png"));
-        machine.addBall(new Ball(CardinalDirection.NORTH), new Machine.Position(0, 0));
+        machine.addBall(new Ball(CardinalDirection.EAST), new Machine.Position(0, 0));
+        machine.addWall(DiagonalWall.NORTHWEST_TO_SOUTHEAST, new Machine.Position(1, 1));
+        machine.addWall(DiagonalWall.SOUTHWEST_TO_NORTHEAST, new Machine.Position(0, 0));
         SwingUtilities.invokeLater(() -> {
             createAndShowUI(machine, ballImage);
         });
