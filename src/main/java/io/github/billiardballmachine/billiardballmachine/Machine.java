@@ -32,6 +32,11 @@ class Machine {
         ballPositions.put(ball, position);
     }
 
+    void addWall(DiagonalWall wall, Position position) {
+        // TODO: validate. Wall can't be added inside ball or other wall.
+        wallPositions.put(wall, position);
+    }
+
     record Position(int x, int y) {
         Position oneSpaceToward(CardinalDirection direction) {
             return inDirection(direction, 1);
@@ -41,6 +46,10 @@ class Machine {
             var newX = x + direction.horizontalCoefficient() * n;
             var newY = y + direction.verticalCoefficient() * n;
             return new Position(newX, newY);
+        }
+
+        Position plus(Position other) {
+            return new Position(this.x + other.x, this.y + other.y);
         }
     }
 
@@ -72,12 +81,30 @@ class Machine {
                 .oneSpaceToward(ballDirection.toPort());
         var offTheStarboardBow = straightAhead
                 .oneSpaceToward(ballDirection.toStarboard());
+        // Wall positions/anchors are at their northwest corner, so the "port-bow" or "starboard-bow" position for the wall
+        // depends on the ball's direction. A ball going east will collide on the starboard side with a SW-NE wall anchored at the ball's position,
+        // but a ball going west will collide on the starboard side with a SW-NE wall anchored *one space north and one space west* of the ball's position.
+        // TODO: consider doubling the scale of the grid, make balls move 2 spaces per step, walls anchored at center. Simplifies this logic, but then balls and walls can only be placed at even and odd coords, respectively.
+        var portBowWallOffset = switch (ballDirection) {
+            case NORTH -> new Position(-1, -1);
+            case EAST  -> new Position( 0, -1);
+            case SOUTH -> new Position( 0,  0);
+            case WEST  -> new Position(-1,  0);
+        };
+        var portBowWallPosition = ballPosition.plus(portBowWallOffset);
+        var starboardBowWallOffset = switch (ballDirection) {
+            case NORTH -> new Position( 0, -1);
+            case EAST  -> new Position( 0,  0);
+            case SOUTH -> new Position(-1,  0);
+            case WEST  -> new Position(-1, -1);
+        };
+        var starboardBowWallPosition = ballPosition.plus(starboardBowWallOffset);
         var willCollideWithWallOnPortBow =
-                (ball.isMovingHorizontally() && DiagonalWall.NORTHWEST_TO_SOUTHEAST.equals(getWallAt(straightAhead))) ||
-                (ball.isMovingVertically()   && DiagonalWall.SOUTHWEST_TO_NORTHEAST.equals(getWallAt(straightAhead)));
+                (ball.isMovingHorizontally() && DiagonalWall.NORTHWEST_TO_SOUTHEAST.equals(getWallAt(portBowWallPosition))) ||
+                (ball.isMovingVertically()   && DiagonalWall.SOUTHWEST_TO_NORTHEAST.equals(getWallAt(portBowWallPosition)));
         var willCollideWithWallOnStarboardBow =
-                (ball.isMovingHorizontally() && DiagonalWall.SOUTHWEST_TO_NORTHEAST.equals(getWallAt(offTheStarboardBow))) ||
-                (ball.isMovingVertically()   && DiagonalWall.NORTHWEST_TO_SOUTHEAST.equals(getWallAt(offTheStarboardBow)));
+                (ball.isMovingHorizontally() && DiagonalWall.SOUTHWEST_TO_NORTHEAST.equals(getWallAt(starboardBowWallPosition))) ||
+                (ball.isMovingVertically()   && DiagonalWall.NORTHWEST_TO_SOUTHEAST.equals(getWallAt(starboardBowWallPosition)));
         var ballOffThePortBow = getBallAt(offThePortBow);
         var willCollideWithBallOnPortBow =
                 ballIsAt(offThePortBow)

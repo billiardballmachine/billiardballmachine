@@ -35,4 +35,31 @@ public class MachineTest {
         );
     }
 
+    @Test
+    public void testUpdateBallCollidesWithSWNEWallAtPerpendicularAndDeflects() {
+        Machine machine = Machine.emptyMachine();
+        machine.addBall(new Ball(CardinalDirection.EAST), new Machine.Position(0, 0));
+        machine.addWall(DiagonalWall.SOUTHWEST_TO_NORTHEAST, new Machine.Position(0, 0));
+        machine.update();
+        assertEquals(new Ball(CardinalDirection.NORTH), machine.getBallAt(new Machine.Position(0, -1)));
+    }
+
+    @Test
+    public void testUpdateBallCollidesWithNWSEWallAtPerpendicularAndDeflects() {
+        Machine machine = Machine.emptyMachine();
+        machine.addBall(new Ball(CardinalDirection.EAST), new Machine.Position(0, 0));
+        machine.addWall(DiagonalWall.NORTHWEST_TO_SOUTHEAST, new Machine.Position(0, -1));
+        machine.update();
+        assertEquals(new Ball(CardinalDirection.SOUTH), machine.getBallAt(new Machine.Position(0, 1)));
+    }
+
+    @Test
+    public void testUpdateBallMovingSouthCollidesWithWallAtPerpendicularAndDeflects() {
+        Machine machine = Machine.emptyMachine();
+        machine.addBall(new Ball(CardinalDirection.SOUTH), new Machine.Position(0, 0));
+        machine.addWall(DiagonalWall.NORTHWEST_TO_SOUTHEAST, new Machine.Position(-1, 0));
+        machine.update();
+        assertEquals(new Ball(CardinalDirection.EAST), machine.getBallAt(new Machine.Position(1, 0)));
+    }
+
 }
