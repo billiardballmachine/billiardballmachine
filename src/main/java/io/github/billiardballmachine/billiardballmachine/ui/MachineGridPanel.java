@@ -44,6 +44,12 @@ public class MachineGridPanel extends JPanel {
         this.ballImage = ballImage;
     }
 
+    public void updateMachine() {
+        machine.update();
+        repaint();
+        revalidate();
+    }
+
     public Dimension getPreferredSize() {
         return new Dimension(250,200);
     }

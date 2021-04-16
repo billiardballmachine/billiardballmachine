@@ -53,7 +53,7 @@ public class Machine {
         }
     }
 
-    void update() {
+    public void update() {
         BiMap<Ball, Position> nextBallPositions = HashBiMap.create();
         for (Map.Entry<Ball, Position> entry : ballPositions.entrySet()) {
             var ball = entry.getKey();

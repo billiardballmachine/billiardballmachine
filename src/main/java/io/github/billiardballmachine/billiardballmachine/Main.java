@@ -3,8 +3,12 @@ package io.github.billiardballmachine.billiardballmachine;
 import io.github.billiardballmachine.billiardballmachine.ui.MachineGridPanel;
 
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -14,7 +18,18 @@ public class Main {
         var frame = new JFrame("Billiard Ball Machine");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        frame.add(new MachineGridPanel(machine, 0.2, 0, 30, ballImage));
+        var rootPanel = new JPanel(new BorderLayout());
+        var machinePanel = new MachineGridPanel(machine, 0.2, 0, 30, ballImage);
+        rootPanel.add(machinePanel, BorderLayout.CENTER);
+        var toolBar = new JToolBar();
+        var button = new JButton("Update");
+        button.addActionListener(e -> {
+            machinePanel.updateMachine();
+        });
+        toolBar.add(button);
+        rootPanel.add(toolBar, BorderLayout.NORTH);
+
+        frame.add(rootPanel);
 
         frame.pack();
         frame.setVisible(true);
