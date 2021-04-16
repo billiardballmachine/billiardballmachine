@@ -14,7 +14,7 @@ import static java.util.stream.Collectors.toMap;
  * so they collide when at a diagonal with each other.
  * They are also assumed to have a constant velocity of 1 unit of distance per step.
  */
-class Machine {
+public class Machine {
     private BiMap<Ball, Position> ballPositions;
     private final BiMap<DiagonalWall, Position> wallPositions;
 
@@ -84,7 +84,7 @@ class Machine {
         // Wall positions/anchors are at their northwest corner, so the "port-bow" or "starboard-bow" position for the wall
         // depends on the ball's direction. A ball going east will collide on the starboard side with a SW-NE wall anchored at the ball's position,
         // but a ball going west will collide on the starboard side with a SW-NE wall anchored *one space north and one space west* of the ball's position.
-        // TODO: consider doubling the scale of the grid, make balls move 2 spaces per step, walls anchored at center. Simplifies this logic, but then balls and walls can only be placed at even and odd coords, respectively.
+        // TODO: consider doubling the scale of the grid, make balls move 2 spaces per step, walls anchored at center. Simplifies this logic, but then balls and walls can only be placed at even and odd gridCoords, respectively.
         var portBowWallOffset = switch (ballDirection) {
             case NORTH -> new Position(-1, -1);
             case EAST  -> new Position( 0, -1);
