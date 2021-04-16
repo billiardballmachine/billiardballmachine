@@ -22,11 +22,16 @@ public class Main {
         var machinePanel = new MachineGridPanel(machine, 0.2, 0, 30, ballImage);
         rootPanel.add(machinePanel, BorderLayout.CENTER);
         var toolBar = new JToolBar();
-        var button = new JButton("Update");
-        button.addActionListener(e -> {
+        var updateButton = new JButton("Update");
+        updateButton.addActionListener(e -> {
             machinePanel.updateMachine();
         });
-        toolBar.add(button);
+        toolBar.add(updateButton);
+        var reverseButton = new JButton("Reverse");
+        reverseButton.addActionListener(e -> {
+            machinePanel.reverseMachine();
+        });
+        toolBar.add(reverseButton);
         rootPanel.add(toolBar, BorderLayout.NORTH);
 
         frame.add(rootPanel);

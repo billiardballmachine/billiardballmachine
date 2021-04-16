@@ -132,6 +132,17 @@ public class Machine {
         return ballDirection;
     }
 
+    public void updateReverse() {
+        reverseBallDirections();
+        update();
+        reverseBallDirections();
+    }
+
+    private void reverseBallDirections() {
+        BiMap<Position, Ball> bpi = ballPositions.inverse();
+        bpi.replaceAll((_p, ball) -> ball.movingInOppositeDirection());
+    }
+
     public DiagonalWall getWallAt(Position position) {
         return wallPositions.inverse().get(position);
     }

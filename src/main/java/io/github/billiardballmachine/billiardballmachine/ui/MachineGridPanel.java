@@ -50,6 +50,12 @@ public class MachineGridPanel extends JPanel {
         revalidate();
     }
 
+    public void reverseMachine() {
+        machine.updateReverse();
+        repaint();
+        revalidate();
+    }
+
     public Dimension getPreferredSize() {
         return new Dimension(250,200);
     }
