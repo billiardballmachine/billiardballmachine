@@ -1,6 +1,6 @@
 package io.github.billiardballmachine.billiardballmachine;
 
-enum CardinalDirection {
+public enum CardinalDirection {
     NORTH(Direction1D.NONE, Direction1D.TOWARD_NEGATIVE),
     SOUTH(Direction1D.NONE, Direction1D.TOWARD_POSITIVE),
     EAST (Direction1D.TOWARD_POSITIVE, Direction1D.NONE),
@@ -49,11 +49,11 @@ enum CardinalDirection {
         return !verticalDirection.equals(Direction1D.NONE);
     }
 
-    int horizontalCoefficient() {
+    public int horizontalCoefficient() {
         return horizontalDirection.getCoefficient();
     }
 
-    int verticalCoefficient() {
+    public int verticalCoefficient() {
         return verticalDirection.getCoefficient();
     }
 }

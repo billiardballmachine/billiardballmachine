@@ -37,7 +37,7 @@ public class Machine {
         wallPositions.put(wall, position);
     }
 
-    record Position(int x, int y) {
+    public record Position(int x, int y) {
         Position oneSpaceToward(CardinalDirection direction) {
             return inDirection(direction, 1);
         }
@@ -132,19 +132,19 @@ public class Machine {
         return ballDirection;
     }
 
-    private DiagonalWall getWallAt(Position position) {
+    public DiagonalWall getWallAt(Position position) {
         return wallPositions.inverse().get(position);
     }
 
-    Ball getBallAt(Position position) {
+    public Ball getBallAt(Position position) {
         return ballPositions.inverse().get(position);
     }
 
-    private boolean wallIsAt(Position position) {
+    public boolean wallIsAt(Position position) {
         return wallPositions.containsValue(position);
     }
 
-    private boolean ballIsAt(Position position) {
+    public boolean ballIsAt(Position position) {
         return ballPositions.containsValue(position);
     }
 

@@ -1,17 +1,25 @@
 package io.github.billiardballmachine.billiardballmachine.ui;
 
+import io.github.billiardballmachine.billiardballmachine.Ball;
+import io.github.billiardballmachine.billiardballmachine.DiagonalWall;
 import io.github.billiardballmachine.billiardballmachine.Machine;
 
 import javax.swing.JPanel;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MachineGridPanel extends JPanel {
 
     private final Machine machine;
+    private final BufferedImage ballImage;
 
     // The coordinates of the machine that should be displayed at the center of the window.
     // They don't have to be valid integer positions. This is to facilitate smooth panning.
@@ -27,12 +35,14 @@ public class MachineGridPanel extends JPanel {
             Machine machine,
             double centerX,
             double centerY,
-            double gridUnitLength
+            double gridUnitLength,
+            BufferedImage ballImage
     ) {
         this.machine = machine;
         this.centerX = centerX;
         this.centerY = centerY;
         this.gridUnitLength = gridUnitLength;
+        this.ballImage = ballImage;
     }
 
     public Dimension getPreferredSize() {
@@ -40,26 +50,47 @@ public class MachineGridPanel extends JPanel {
     }
 
     public void paintComponent(Graphics g) {
-        super.paintComponent(g);
+        var g2 = (Graphics2D) g;
+        super.paintComponent(g2);
 
         var height = getHeight();
         var width = getWidth();
 
         var gridData = calculateGridData();
+        var xCoords = gridData.xData().gridCoords();
+        var yCoords = gridData.yData().gridCoords();
 
-        for (double x : gridData.xData().gridCoords()) {
+        // Draw gridlines
+        for (double x : xCoords) {
             var lineX = (int) x;
-            g.setColor(Color.LIGHT_GRAY);
-            g.drawLine(lineX, 0, lineX, height);
+            g2.setColor(Color.LIGHT_GRAY);
+            g2.drawLine(lineX, 0, lineX, height);
         }
 
-        for (double y : gridData.yData().gridCoords()) {
+        for (double y : yCoords) {
             var lineY = (int) y;
-            g.setColor(Color.LIGHT_GRAY);
-            g.drawLine(0, lineY, width, lineY);
+            g2.setColor(Color.LIGHT_GRAY);
+            g2.drawLine(0, lineY, width, lineY);
         }
 
-
+        // Draw balls and walls
+        int machineGridX = gridData.xData().machineGridStart();
+        for (double x : xCoords) {
+            int machineGridY = gridData.yData().machineGridStart();
+            for (double y : yCoords) {
+                var position = new Machine.Position(machineGridX, machineGridY);
+                if (machine.wallIsAt(position)) {
+                    var wall = machine.getWallAt(position);
+                    paintWall(g2, wall, x, y);
+                }
+                if (machine.ballIsAt(position)) {
+                    var ball = machine.getBallAt(position);
+                    paintBall(g2, ball, x, y);
+                }
+                machineGridY++;
+            }
+            machineGridX++;
+        }
     }
 
     private record DimensionData(int machineGridStart, List<Double> gridCoords) {}
@@ -96,11 +127,28 @@ public class MachineGridPanel extends JPanel {
         );
     }
 
-    private void paintBall(Graphics g, int x, int y) {
+    private void paintBall(Graphics2D g, Ball ball, double x, double y) {
+        var diameter = gridUnitLength * 1.4; // roughly sqrt(2), minus a little to account for stroke width
+        var radius = diameter / 2;
+        var left   = (x - radius);
+        var top    = (y - radius);
 
+        var transform = new AffineTransform();
+        var rotations = switch (ball.directionOfMovement()) {
+            case EAST -> 0;
+            case SOUTH -> 1;
+            case WEST -> 2;
+            case NORTH -> 3;
+        };
+        var imgW = ballImage.getWidth();
+        var imgH = ballImage.getHeight();
+        transform.translate(left, top);
+        transform.scale(diameter / imgW, diameter / imgH);
+        transform.quadrantRotate(rotations, imgW / 2, imgH / 2);
+        g.drawImage(ballImage, transform, null);
     }
 
-    private void paintWall(Graphics g, int x, int y) {
-        // TODO
+    private void paintWall(Graphics g, DiagonalWall wall, double x, double y) {
+
     }
 }

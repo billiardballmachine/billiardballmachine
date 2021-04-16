@@ -1,6 +1,6 @@
 package io.github.billiardballmachine.billiardballmachine;
 
-record Ball(CardinalDirection directionOfMovement) {
+public record Ball(CardinalDirection directionOfMovement) {
     boolean isMovingInDirection(CardinalDirection direction) {
         return directionOfMovement.equals(direction);
     }
