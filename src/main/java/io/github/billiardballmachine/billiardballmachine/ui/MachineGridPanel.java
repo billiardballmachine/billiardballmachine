@@ -201,12 +201,10 @@ public class MachineGridPanel extends JPanel implements MouseInputListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("CLICK!");
         if (editMachineCommand == null) {
             return;
         }
         var elem = machineElementForPoint(snapPoint(cachedGridData)); // TODO: cache some of this?
-        System.out.println(elem);
         editMachineCommand.execute(machine, elem.position(), elem.isBall()); // TODO
         repaint();
     }

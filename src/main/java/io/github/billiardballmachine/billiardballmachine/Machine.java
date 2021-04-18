@@ -1,9 +1,6 @@
 package io.github.billiardballmachine.billiardballmachine;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.EnumHashBiMap;
-import com.google.common.collect.HashBiMap;
-
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -13,43 +10,40 @@ import java.util.Map;
  * They are also assumed to have a constant velocity of 1 unit of distance per step.
  */
 public class Machine {
-    private BiMap<Ball, Position> ballPositions;
-    private final BiMap<DiagonalWall, Position> wallPositions;
+    private Map<Position, Ball> ballPositions;
+    private final Map<Position, DiagonalWall> wallPositions;
 
-    Machine(BiMap<Ball, Position> ballPositions, BiMap<DiagonalWall, Position> wallPositions) {
+    Machine(Map<Position, Ball> ballPositions, Map<Position, DiagonalWall> wallPositions) {
         this.ballPositions = ballPositions;
         this.wallPositions = wallPositions;
     }
 
     static Machine emptyMachine() {
-        return new Machine(HashBiMap.create(), EnumHashBiMap.create(DiagonalWall.class));
+        return new Machine(new HashMap<>(), new HashMap<>());
     }
 
     void addBall(Ball ball, Position position) {
         // TODO: validate better. Another ball can't be in an orthogonally-adjacent square.
-        if (positionOccupied(position)) {
+        if (ballIsAt(position)) {
             return;
         }
-        ballPositions.put(ball, position);
+        ballPositions.put(position, ball);
     }
 
     void addWall(DiagonalWall wall, Position position) {
-        if (positionOccupied(position)) {
+        // TODO: validate based on adjacent balls
+        if (wallIsAt(position)) {
             return;
         }
-        wallPositions.put(wall, position);
-    }
-
-    private boolean positionOccupied(Position position) {
-        return wallIsAt(position) || ballIsAt(position);
+        wallPositions.put(position, wall);
     }
 
     Ball removeBall(Position position) {
-        return ballPositions.inverse().remove(position);
+        return ballPositions.remove(position);
     }
 
     DiagonalWall removeWall(Position position) {
-        return wallPositions.inverse().remove(position);
+        return wallPositions.remove(position);
     }
 
     void rotateBall(Position position) {
@@ -86,13 +80,13 @@ public class Machine {
     }
 
     public void update() {
-        BiMap<Ball, Position> nextBallPositions = HashBiMap.create();
-        for (Map.Entry<Ball, Position> entry : ballPositions.entrySet()) {
-            var ball = entry.getKey();
-            var position = entry.getValue();
+        Map<Position, Ball> nextBallPositions = new HashMap<>();
+        for (Map.Entry<Position, Ball> entry : ballPositions.entrySet()) {
+            var position = entry.getKey();
+            var ball = entry.getValue();
             var nextDirection = calculateNextDirection(ball, position); // TODO: handle null, or use Exception?
             var nextPosition = position.oneSpaceToward(nextDirection);
-            nextBallPositions.put(new Ball(nextDirection), nextPosition); // TODO: avoid creating new balls each update?
+            nextBallPositions.put(nextPosition, new Ball(nextDirection));
         }
         this.ballPositions = nextBallPositions;
     }
@@ -171,24 +165,23 @@ public class Machine {
     }
 
     private void reverseBallDirections() {
-        BiMap<Position, Ball> bpi = ballPositions.inverse();
-        bpi.replaceAll((_p, ball) -> ball.movingInOppositeDirection());
+        ballPositions.replaceAll((_p, ball) -> ball.movingInOppositeDirection());
     }
 
     public DiagonalWall getWallAt(Position position) {
-        return wallPositions.inverse().get(position);
+        return wallPositions.get(position);
     }
 
     public Ball getBallAt(Position position) {
-        return ballPositions.inverse().get(position);
+        return ballPositions.get(position);
     }
 
     public boolean wallIsAt(Position position) {
-        return wallPositions.containsValue(position);
+        return wallPositions.containsKey(position);
     }
 
     public boolean ballIsAt(Position position) {
-        return ballPositions.containsValue(position);
+        return ballPositions.containsKey(position);
     }
 
 
