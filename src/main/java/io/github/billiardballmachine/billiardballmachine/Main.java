@@ -111,10 +111,6 @@ public class Main {
         return button;
     }
 
-    private static JToggleButton toggleButtonWithIcon(String path) {
-        return new JToggleButton(new ImageIcon(Main.class.getResource(path)));
-    }
-
     private static ButtonGroup createButtonGroup(AbstractButton... buttons) {
         var buttonGroup = new ButtonGroup();
         for (AbstractButton button : buttons) {

@@ -27,6 +27,8 @@ public class MachineGridPanel extends JPanel implements MouseInputListener {
     private final Machine machine;
     private final BufferedImage ballImage;
 
+    private GridData cachedGridData;
+
     private BufferedImage hoverIcon;
     private GridSnap hoverIconSnap;
 
@@ -60,6 +62,7 @@ public class MachineGridPanel extends JPanel implements MouseInputListener {
         this.centerY = centerY;
         this.gridUnitLength = gridUnitLength;
         this.ballImage = ballImage;
+        addMouseListener(this);
         addMouseMotionListener(this);
     }
 
@@ -87,6 +90,7 @@ public class MachineGridPanel extends JPanel implements MouseInputListener {
         var width = getWidth();
 
         var gridData = calculateGridData();
+        cachedGridData = gridData;
         var xCoords = gridData.xData().gridCoords();
         var yCoords = gridData.yData().gridCoords();
 
@@ -197,16 +201,43 @@ public class MachineGridPanel extends JPanel implements MouseInputListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        System.out.println("CLICK!");
         if (editMachineCommand == null) {
             return;
         }
-        Machine.Position pos = machinePositionForPoint(e.getPoint());
-        editMachineCommand.execute(machine, pos, false); // TODO
+        var elem = machineElementForPoint(snapPoint(cachedGridData)); // TODO: cache some of this?
+        System.out.println(elem);
+        editMachineCommand.execute(machine, elem.position(), elem.isBall()); // TODO
+        repaint();
     }
 
-    private static Machine.Position machinePositionForPoint(Point p) {
-        return null;
+    private record MachineElement(Machine.Position position, boolean isBall) {}
+
+    private MachineElement machineElementForPoint(Point p) {
+        var gridData = cachedGridData;
+        var xCoords = gridData.xData().gridCoords();
+        var machineXStart = gridData.xData().machineGridStart();
+        var x = p.getX();
+        double gridX = Double.MAX_VALUE;
+        int machineX = Integer.MAX_VALUE;
+        for (int i = xCoords.size() - 1; i >= 0 && gridX > x; i--) {
+            gridX = xCoords.get(i);
+            machineX = machineXStart + i;
+        }
+        var yCoords = gridData.yData().gridCoords();
+        var machineYStart = gridData.yData().machineGridStart();
+        var y = p.getY();
+        double gridY = Double.MAX_VALUE;
+        int machineY = Integer.MAX_VALUE;
+        for (int i = yCoords.size() - 1; i >= 0 && gridY > y; i--) {
+            gridY = yCoords.get(i);
+            machineY = machineYStart + i;
+        }
+        boolean isBall = gridX == x && gridY == y;
+
+        return new MachineElement(new Machine.Position(machineX, machineY), isBall);
     }
+
 
     private record DimensionData(int machineGridStart, List<Double> gridCoords) {}
     private record GridData(DimensionData xData, DimensionData yData) {}
