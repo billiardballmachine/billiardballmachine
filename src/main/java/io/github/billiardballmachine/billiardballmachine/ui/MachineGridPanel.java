@@ -2,23 +2,41 @@ package io.github.billiardballmachine.billiardballmachine.ui;
 
 import io.github.billiardballmachine.billiardballmachine.Ball;
 import io.github.billiardballmachine.billiardballmachine.DiagonalWall;
+import io.github.billiardballmachine.billiardballmachine.EditMachineCommand;
 import io.github.billiardballmachine.billiardballmachine.Machine;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputListener;
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MachineGridPanel extends JPanel {
+public class MachineGridPanel extends JPanel implements MouseInputListener {
 
     private final Machine machine;
     private final BufferedImage ballImage;
+
+    private BufferedImage hoverIcon;
+    private GridSnap hoverIconSnap;
+
+    public enum GridSnap {
+        ONLY_HALF,
+        HALF,
+        WHOLE,
+    }
+
+    private EditMachineCommand editMachineCommand;
 
     // The coordinates of the machine that should be displayed at the center of the window.
     // They don't have to be valid integer positions. This is to facilitate smooth panning.
@@ -42,6 +60,7 @@ public class MachineGridPanel extends JPanel {
         this.centerY = centerY;
         this.gridUnitLength = gridUnitLength;
         this.ballImage = ballImage;
+        addMouseMotionListener(this);
     }
 
     public void updateMachine() {
@@ -103,6 +122,90 @@ public class MachineGridPanel extends JPanel {
             }
             machineGridX++;
         }
+
+        // Draw editor hover icon
+        if (hoverIcon != null) {
+            var snapPoint = snapPoint(gridData);
+            var x = (snapPoint.getX() - hoverIcon.getWidth()  / 2);
+            var y = (snapPoint.getY() - hoverIcon.getHeight() / 2);
+            var transform = AffineTransform.getTranslateInstance(x, y);
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+            g2.drawImage(hoverIcon, transform, null);
+            g2.setPaintMode();
+        }
+    }
+
+    private Point snapPoint(GridData gridData) {
+        Point p = MouseInfo.getPointerInfo().getLocation();
+        SwingUtilities.convertPointFromScreen(p, this);
+        var x = p.getX();
+        var y = p.getY();
+        SnapPointInfo xSnapInfo = snapPointInfo(x, gridData.xData().gridCoords());
+        SnapPointInfo ySnapInfo = snapPointInfo(y, gridData.yData().gridCoords());
+        var halfGridPoint = new Point((int) xSnapInfo.halfGridV(), (int) ySnapInfo.halfGridV());
+        var nearestWholeGridPoint = new Point((int) xSnapInfo.nearestGridV(), (int) ySnapInfo.nearestGridV());
+        switch (hoverIconSnap) {
+            case ONLY_HALF -> { return halfGridPoint; }
+            case WHOLE -> { return nearestWholeGridPoint; }
+            case HALF -> {
+                var halfGridLength = gridUnitLength / 2;
+                var xOff = x - xSnapInfo.gridV();
+                var yOff = y - ySnapInfo.gridV();
+                // Check if in diamond around half-point. If so, snap to half-point, else nearest whole grid point.
+                return ((yOff > -xOff + halfGridLength) &&
+                        (yOff < -xOff + 3 * halfGridLength) &&
+                        (yOff > xOff - halfGridLength) &&
+                        (yOff < xOff + halfGridLength))
+                        ? halfGridPoint
+                        : nearestWholeGridPoint;
+            }
+        }
+        return null;
+    }
+
+    private record SnapPointInfo(double gridV, double halfGridV, double nearestGridV) {}
+
+    private SnapPointInfo snapPointInfo(double v, List<Double> gridCoords) {
+        double gridV = Double.MAX_VALUE;
+        for (int i = gridCoords.size() - 1; i >= 0 && gridV > v; i--) {
+            gridV = gridCoords.get(i);
+        }
+        var halfGridLength = gridUnitLength / 2;
+        var halfGridV = gridV + halfGridLength;
+        var nearestGridV = (v < halfGridV) ? gridV : gridV + gridUnitLength;
+        return new SnapPointInfo(gridV, halfGridV, nearestGridV);
+    }
+
+    public void setHoverIcon(BufferedImage icon, GridSnap snap) {
+        this.hoverIcon = icon;
+        this.hoverIconSnap = snap;
+    }
+
+    // Unused
+    @Override public void mouseDragged(MouseEvent e) { }
+    @Override public void mouseEntered(MouseEvent e) { }
+    @Override public void mouseExited(MouseEvent e) { }
+    @Override public void mousePressed(MouseEvent e) { }
+    @Override public void mouseReleased(MouseEvent e) { }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        if (hoverIcon != null) {
+            repaint();
+        }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (editMachineCommand == null) {
+            return;
+        }
+        Machine.Position pos = machinePositionForPoint(e.getPoint());
+        editMachineCommand.execute(machine, pos, false); // TODO
+    }
+
+    private static Machine.Position machinePositionForPoint(Point p) {
+        return null;
     }
 
     private record DimensionData(int machineGridStart, List<Double> gridCoords) {}
@@ -137,6 +240,10 @@ public class MachineGridPanel extends JPanel {
                 calculateDimensionData(getWidth(), centerX),
                 calculateDimensionData(getHeight(), centerY)
         );
+    }
+
+    public void setEditMachineCommand(EditMachineCommand command) {
+        this.editMachineCommand = command;
     }
 
     private void paintBall(Graphics2D g, Ball ball, double x, double y) {

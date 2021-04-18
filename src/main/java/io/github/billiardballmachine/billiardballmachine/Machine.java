@@ -6,8 +6,6 @@ import com.google.common.collect.HashBiMap;
 
 import java.util.Map;
 
-import static java.util.stream.Collectors.toMap;
-
 /**
  * A billiard-ball machine.
  * Balls are assumed to be perfect spheres √2/2 unit of distance in radius
@@ -28,13 +26,47 @@ public class Machine {
     }
 
     void addBall(Ball ball, Position position) {
-        // TODO: validate. Ball can't be added inside wall or other ball.
+        // TODO: validate better. Another ball can't be in an orthogonally-adjacent square.
+        if (positionOccupied(position)) {
+            return;
+        }
         ballPositions.put(ball, position);
     }
 
     void addWall(DiagonalWall wall, Position position) {
-        // TODO: validate. Wall can't be added inside ball or other wall.
+        if (positionOccupied(position)) {
+            return;
+        }
         wallPositions.put(wall, position);
+    }
+
+    private boolean positionOccupied(Position position) {
+        return wallIsAt(position) || ballIsAt(position);
+    }
+
+    Ball removeBall(Position position) {
+        return ballPositions.inverse().remove(position);
+    }
+
+    DiagonalWall removeWall(Position position) {
+        return wallPositions.inverse().remove(position);
+    }
+
+    void rotateBall(Position position) {
+        var ball = removeBall(position);
+        if (ball == null) {
+            return;
+        }
+        var newDirection = ball.directionOfMovement().toStarboard();
+        addBall(new Ball(newDirection), position);
+    }
+
+    void rotateWall(Position position) {
+        var wall = removeWall(position);
+        if (wall == null) {
+            return;
+        }
+        addWall(wall.rotateClockwise(), position);
     }
 
     public record Position(int x, int y) {
@@ -158,5 +190,6 @@ public class Machine {
     public boolean ballIsAt(Position position) {
         return ballPositions.containsValue(position);
     }
+
 
 }
