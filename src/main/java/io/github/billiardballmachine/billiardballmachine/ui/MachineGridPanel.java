@@ -17,12 +17,14 @@ import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MachineGridPanel extends JPanel implements MouseInputListener {
+public class MachineGridPanel extends JPanel implements MouseInputListener, MouseWheelListener {
 
     private final Machine machine;
     private final BufferedImage ballImage;
@@ -64,6 +66,7 @@ public class MachineGridPanel extends JPanel implements MouseInputListener {
         this.ballImage = ballImage;
         addMouseListener(this);
         addMouseMotionListener(this);
+        addMouseWheelListener(this);
     }
 
     public void updateMachine() {
@@ -191,6 +194,12 @@ public class MachineGridPanel extends JPanel implements MouseInputListener {
     @Override public void mouseExited(MouseEvent e) { }
     @Override public void mousePressed(MouseEvent e) { }
     @Override public void mouseReleased(MouseEvent e) { }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        gridUnitLength = Math.max(2, Math.min(gridUnitLength + e.getUnitsToScroll(), 60)); // Zoom
+        repaint();
+    }
 
     @Override
     public void mouseMoved(MouseEvent e) {

@@ -15,6 +15,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
@@ -81,9 +82,9 @@ public class Main {
         );
         machineEditorToolBar.add(deleteButton);
         machineEditorToolBar.add(new JLabel("Other: "));
-        var clearButton = new JToggleButton("None");
+        var clearButton = new JToggleButton("Pan");
         clearButton.addActionListener(e -> {
-            machinePanel.setCursor(null);
+            machinePanel.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
             machinePanel.setHoverIcon(null, null);
             machinePanel.setEditMachineCommand(null);
             machinePanel.repaint();
