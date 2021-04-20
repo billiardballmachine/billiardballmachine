@@ -1,5 +1,6 @@
 package io.github.billiardballmachine.billiardballmachine;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,16 +24,45 @@ public class Machine {
     }
 
     void addBall(Ball ball, Position position) {
-        // TODO: validate better. Another ball can't be in an orthogonally-adjacent square.
-        if (ballIsAt(position)) {
+        if (ballIntersects(position) || wallTouches(position)) {
             return;
         }
         ballPositions.put(position, ball);
     }
 
+    private boolean wallTouches(Position position) {
+        var n  = position.oneSpaceToward(CardinalDirection.NORTH);
+        var w  = position.oneSpaceToward(CardinalDirection.WEST);
+        var nw = position.oneSpaceToward(CardinalDirection.NORTH).oneSpaceToward(CardinalDirection.WEST);
+        return (wallIsAt(position) && DiagonalWall.NORTHWEST_TO_SOUTHEAST.equals(getWallAt(position)))
+            || (wallIsAt(n)        && DiagonalWall.SOUTHWEST_TO_NORTHEAST.equals(getWallAt(n)))
+            || (wallIsAt(w)        && DiagonalWall.SOUTHWEST_TO_NORTHEAST.equals(getWallAt(w)))
+            || (wallIsAt(nw)       && DiagonalWall.NORTHWEST_TO_SOUTHEAST.equals(getWallAt(nw)));
+    }
+
+    private boolean ballIntersects(Position position) {
+        return Arrays.asList(
+                position,
+                position.oneSpaceToward(CardinalDirection.NORTH),
+                position.oneSpaceToward(CardinalDirection.EAST),
+                position.oneSpaceToward(CardinalDirection.SOUTH),
+                position.oneSpaceToward(CardinalDirection.WEST)).stream()
+                .anyMatch(this::ballIsAt);
+    }
+
     void addWall(DiagonalWall wall, Position position) {
-        // TODO: validate based on adjacent balls
-        if (wallIsAt(position)) {
+        boolean intersectsBall = switch (wall) {
+            case NORTHWEST_TO_SOUTHEAST -> {
+                var se = position.oneSpaceToward(CardinalDirection.SOUTH).oneSpaceToward(CardinalDirection.EAST);
+                yield ballIsAt(position) || ballIsAt(se);
+            }
+            case SOUTHWEST_TO_NORTHEAST -> {
+                var s  = position.oneSpaceToward(CardinalDirection.SOUTH);
+                var e  = position.oneSpaceToward(CardinalDirection.EAST);
+                yield ballIsAt(s) || ballIsAt(e);
+            }
+        };
+        if (wallIsAt(position) || intersectsBall) {
             return;
         }
         wallPositions.put(position, wall);
