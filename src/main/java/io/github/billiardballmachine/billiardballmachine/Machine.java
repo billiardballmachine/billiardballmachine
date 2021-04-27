@@ -1,5 +1,8 @@
 package io.github.billiardballmachine.billiardballmachine;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -213,6 +216,5 @@ public class Machine {
     public boolean ballIsAt(Position position) {
         return ballPositions.containsKey(position);
     }
-
 
 }

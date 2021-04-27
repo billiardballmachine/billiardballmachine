@@ -5,8 +5,7 @@ import io.github.billiardballmachine.billiardballmachine.DiagonalWall;
 import io.github.billiardballmachine.billiardballmachine.EditMachineCommand;
 import io.github.billiardballmachine.billiardballmachine.Machine;
 
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -16,9 +15,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -30,6 +27,8 @@ public class MachineGridPanel extends JPanel implements MouseInputListener, Mous
     private final BufferedImage ballImage;
 
     private GridData cachedGridData;
+
+    private Timer timer;
 
     private BufferedImage hoverIcon;
     private GridSnap hoverIconSnap;
@@ -79,6 +78,20 @@ public class MachineGridPanel extends JPanel implements MouseInputListener, Mous
         machine.updateReverse();
         repaint();
         revalidate();
+    }
+
+    public void animateMachine() {
+        timer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateMachine();
+            }
+        });
+        timer.start();
+    }
+
+    public void stopMachine() {
+        timer.stop();
     }
 
     public Dimension getPreferredSize() {

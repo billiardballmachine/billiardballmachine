@@ -132,6 +132,16 @@ public class Main {
             machinePanel.reverseMachine();
         });
         toolBar.add(reverseButton);
+        var playButton = new JButton("Animate");
+        playButton.addActionListener(e -> {
+            machinePanel.animateMachine();
+        });
+        toolBar.add(playButton);
+        var stopButton = new JButton("Stop");
+        stopButton.addActionListener(e -> {
+            machinePanel.stopMachine();
+        });
+        toolBar.add(stopButton);
         return toolBar;
     }
 
