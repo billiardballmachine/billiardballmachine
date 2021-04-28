@@ -68,6 +68,10 @@ public class MachineGridPanel extends JPanel implements MouseInputListener, Mous
         addMouseWheelListener(this);
     }
 
+    public void setAnimationPeriod(int periodInMs) {
+        animationTimer.setDelay(periodInMs);
+    }
+
     public void updateMachine() {
         machine.update();
         repaint();

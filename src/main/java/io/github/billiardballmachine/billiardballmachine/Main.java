@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
@@ -134,6 +135,16 @@ public class Main {
         addToolBarButton(toolBar, "Reverse", e -> { machinePanel.reverseAnimateMachine(); });
         addToolBarButton(toolBar, "Stop",    e -> { machinePanel.stopMachine(); });
         addToolBarButton(toolBar, "Forward", e -> { machinePanel.animateMachine(); });
+
+        toolBar.add(new JLabel("Speed: "));
+        var animationSpeedSlider = new JSlider(0, 4, 0);
+        animationSpeedSlider.addChangeListener(ce -> {
+            var slider = (JSlider) ce.getSource();
+            var newValue = slider.getValue();
+            var newPeriod = 500 - 100 * newValue;
+            machinePanel.setAnimationPeriod(newPeriod);
+        });
+        toolBar.add(animationSpeedSlider);
 
         return toolBar;
     }
