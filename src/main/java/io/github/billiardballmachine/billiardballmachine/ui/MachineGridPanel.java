@@ -28,8 +28,6 @@ public class MachineGridPanel extends JPanel implements MouseInputListener, Mous
 
     private GridData cachedGridData;
 
-    private Timer timer;
-
     private BufferedImage hoverIcon;
     private GridSnap hoverIconSnap;
 
@@ -50,6 +48,8 @@ public class MachineGridPanel extends JPanel implements MouseInputListener, Mous
     // It is a double to try and facilitate smooth zooming.
     // TODO: consider if this should be an int
     private double gridUnitLength;
+
+    private Timer animationTimer = new Timer(100, null);
 
     public MachineGridPanel(
             Machine machine,
@@ -80,18 +80,26 @@ public class MachineGridPanel extends JPanel implements MouseInputListener, Mous
         revalidate();
     }
 
+    ActionListener updateAction = e -> { updateMachine(); };
     public void animateMachine() {
-        timer = new Timer(100, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateMachine();
-            }
-        });
-        timer.start();
+        startAnimation(updateAction);
+    }
+
+    ActionListener reverseAction = e -> { reverseMachine(); };
+    public void reverseAnimateMachine() {
+        startAnimation(reverseAction);
+    }
+
+    private void startAnimation(ActionListener action) {
+        stopMachine();
+        animationTimer.addActionListener(action);
+        animationTimer.start();
     }
 
     public void stopMachine() {
-        timer.stop();
+        animationTimer.stop();
+        animationTimer.removeActionListener(updateAction);
+        animationTimer.removeActionListener(reverseAction);
     }
 
     public Dimension getPreferredSize() {

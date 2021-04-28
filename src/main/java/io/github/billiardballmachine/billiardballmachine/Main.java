@@ -18,6 +18,7 @@ import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -122,27 +123,25 @@ public class Main {
 
     private static JToolBar createMachineControlToolBar(MachineGridPanel machinePanel) {
         var toolBar = new JToolBar();
-        var updateButton = new JButton("Update");
-        updateButton.addActionListener(e -> {
-            machinePanel.updateMachine();
-        });
-        toolBar.add(updateButton);
-        var reverseButton = new JButton("Reverse");
-        reverseButton.addActionListener(e -> {
-            machinePanel.reverseMachine();
-        });
-        toolBar.add(reverseButton);
-        var playButton = new JButton("Animate");
-        playButton.addActionListener(e -> {
-            machinePanel.animateMachine();
-        });
-        toolBar.add(playButton);
-        var stopButton = new JButton("Stop");
-        stopButton.addActionListener(e -> {
-            machinePanel.stopMachine();
-        });
-        toolBar.add(stopButton);
+
+        toolBar.add(new JLabel("Update: "));
+        addToolBarButton(toolBar, "Reverse", e -> { machinePanel.reverseMachine(); });
+        addToolBarButton(toolBar, "Forward", e -> { machinePanel.updateMachine(); });
+
+        toolBar.addSeparator();
+
+        toolBar.add(new JLabel("Animate: "));
+        addToolBarButton(toolBar, "Reverse", e -> { machinePanel.reverseAnimateMachine(); });
+        addToolBarButton(toolBar, "Stop",    e -> { machinePanel.stopMachine(); });
+        addToolBarButton(toolBar, "Forward", e -> { machinePanel.animateMachine(); });
+
         return toolBar;
+    }
+
+    private static void addToolBarButton(JToolBar toolBar, String label, ActionListener action) {
+        var button = new JButton(label);
+        button.addActionListener(action);
+        toolBar.add(button);
     }
 
     public static void main(String[] args) throws IOException {
