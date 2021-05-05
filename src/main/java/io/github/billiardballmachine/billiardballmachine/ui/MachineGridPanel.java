@@ -72,6 +72,16 @@ public class MachineGridPanel extends JPanel implements MouseInputListener, Mous
         animationTimer.setDelay(periodInMs);
     }
 
+    public void loadMachineFromConfiguration(List<String> configuration) {
+        machine.loadFromConfiguration(configuration);
+        repaint();
+        revalidate();
+    }
+
+    public List<String> getMachineConfiguration() {
+        return machine.getConfigurationAsStrings();
+    }
+
     public void updateMachine() {
         machine.update();
         repaint();

@@ -3,9 +3,13 @@ package io.github.billiardballmachine.billiardballmachine;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * A billiard-ball machine.
@@ -24,6 +28,68 @@ public class Machine {
 
     static Machine emptyMachine() {
         return new Machine(new HashMap<>(), new HashMap<>());
+    }
+
+    void clear() {
+        ballPositions.clear();
+        wallPositions.clear();
+    }
+
+    public void loadFromConfiguration(List<String> configuration) {
+        clear();
+        for (String configString : configuration) {
+            loadObjectFromConfigurationString(configString);
+        }
+    }
+
+    private void loadObjectFromConfigurationString(String configString) {
+        try (
+                var s = new Scanner(configString)
+        ) {
+            var objectType = s.next();
+            switch (objectType) {
+                case "ball" -> {
+                    var direction = CardinalDirection.fromConfigurationString(s.next());
+                    var position = readPosition(s);
+                    addBall(new Ball(direction), position);
+                }
+                case "wall" -> {
+                    var wall = DiagonalWall.fromConfigurationString(s.next());
+                    var position = readPosition(s);
+                    addWall(wall, position);
+                }
+                default -> throw new IllegalArgumentException("Unexpected type in configuration string: " + objectType);
+            }
+        }
+    }
+
+    private static Position readPosition(Scanner s) {
+        var x = s.nextInt();
+        var y = s.nextInt();
+        return new Position(x, y);
+    }
+
+    public List<String> getConfigurationAsStrings() {
+        var configuration = new ArrayList<String>();
+        for (Map.Entry<Position, Ball> e : ballPositions.entrySet()) {
+            configuration.add(toConfigurationString(e.getValue(), e.getKey()));
+        }
+        for (Map.Entry<Position, DiagonalWall> e : wallPositions.entrySet()) {
+            configuration.add(toConfigurationString(e.getValue(), e.getKey()));
+        }
+        return configuration;
+    }
+
+    private static String toConfigurationString(DiagonalWall w, Position p) {
+        return String.format("wall %s %s",
+                w.toConfigurationString(),
+                p.toConfigurationString());
+    }
+
+    private static String toConfigurationString(Ball b, Position p) {
+        return String.format("ball %s %s",
+                b.directionOfMovement().toConfigurationString(),
+                p.toConfigurationString());
     }
 
     void addBall(Ball ball, Position position) {
@@ -109,6 +175,10 @@ public class Machine {
 
         Position plus(Position other) {
             return new Position(this.x + other.x, this.y + other.y);
+        }
+
+        public String toConfigurationString() {
+            return x + " " + y;
         }
     }
 

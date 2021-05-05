@@ -7,21 +7,32 @@ import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
 
 public class Main {
 
@@ -92,11 +103,66 @@ public class Main {
             machinePanel.repaint();
         });
         machineEditorToolBar.add(clearButton);
-        var machineEditorButtonGroup = createButtonGroup(ballButton, nwseWallButton, swneWallButton, turnButton, deleteButton, clearButton);
+        createButtonGroup(ballButton, nwseWallButton, swneWallButton, turnButton, deleteButton, clearButton);
         machineEditorToolBar.setOrientation(SwingConstants.VERTICAL);
         rootPanel.add(machineEditorToolBar, BorderLayout.WEST);
 
         frame.add(rootPanel);
+
+        var fileChooser = new JFileChooser();
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        var bbmFileFilter = new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return !pathname.isFile() || pathname.getName().endsWith(".bbm");
+            }
+
+            @Override
+            public String getDescription() {
+                return "Billiard-Ball Machine configuration files (*.bbm)";
+            }
+        };
+        fileChooser.addChoosableFileFilter(bbmFileFilter);
+        fileChooser.setFileFilter(bbmFileFilter);
+
+        var menuBar = new JMenuBar();
+        var fileMenu = new JMenu("File");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+        var openMenuItem = new JMenuItem("Open...");
+        openMenuItem.addActionListener(e -> {
+            var result = fileChooser.showOpenDialog(frame);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                var file = fileChooser.getSelectedFile();
+                try {
+                    var configuration = Files.readAllLines(file.toPath());
+                    machinePanel.loadMachineFromConfiguration(configuration);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
+        fileMenu.add(openMenuItem);
+        var exportMenuItem = new JMenuItem("Export...");
+        exportMenuItem.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+        exportMenuItem.addActionListener(e -> {
+            var result = fileChooser.showSaveDialog(frame);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                var file = fileChooser.getSelectedFile();
+                var configuration = machinePanel.getMachineConfiguration();
+                try (
+                        var pw = new PrintWriter(file)
+                ) {
+                    configuration.forEach(pw::println);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
+        fileMenu.add(exportMenuItem);
+        menuBar.add(fileMenu);
+
+        frame.setJMenuBar(menuBar);
 
         frame.pack();
         frame.setVisible(true);

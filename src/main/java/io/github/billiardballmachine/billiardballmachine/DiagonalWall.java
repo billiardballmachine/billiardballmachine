@@ -10,4 +10,19 @@ public enum DiagonalWall {
             case SOUTHWEST_TO_NORTHEAST -> NORTHWEST_TO_SOUTHEAST;
         };
     }
+
+    String toConfigurationString() {
+        return switch (this) {
+            case NORTHWEST_TO_SOUTHEAST -> "NWSE";
+            case SOUTHWEST_TO_NORTHEAST -> "SWNE";
+        };
+    }
+
+    static DiagonalWall fromConfigurationString(String s) {
+        return switch (s) {
+            case "NWSE" -> NORTHWEST_TO_SOUTHEAST;
+            case "SWNE" -> SOUTHWEST_TO_NORTHEAST;
+            default -> throw new IllegalArgumentException("Unexpected configuration value for DiagonalWall: " + s);
+        };
+    }
 }

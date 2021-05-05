@@ -17,4 +17,5 @@ public record Ball(CardinalDirection directionOfMovement) {
     boolean isMovingVertically() {
         return directionOfMovement.isVertical();
     }
+
 }

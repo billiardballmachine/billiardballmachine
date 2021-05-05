@@ -56,4 +56,23 @@ public enum CardinalDirection {
     public int verticalCoefficient() {
         return verticalDirection.getCoefficient();
     }
+
+    String toConfigurationString() {
+        return switch (this) {
+            case NORTH -> "N";
+            case EAST  -> "E";
+            case SOUTH -> "S";
+            case WEST  -> "W";
+        };
+    }
+
+    static CardinalDirection fromConfigurationString(String s) {
+        return switch (s) {
+            case "N" -> NORTH;
+            case "E" -> EAST;
+            case "S" -> SOUTH;
+            case "W" -> WEST;
+            default -> throw new IllegalArgumentException("Unexpected configuration value for CardinalDirection: " + s);
+        };
+    }
 }
