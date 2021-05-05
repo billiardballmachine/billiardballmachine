@@ -1,0 +1,4 @@
+ball S 0 0
+ball E -1 1
+wall NWSE -2 4
+wall NWSE 1 -1

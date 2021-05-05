@@ -1,0 +1,4 @@
+ball N 1 1
+ball E 0 0
+wall SWNE -1 -2
+wall SWNE 2 1

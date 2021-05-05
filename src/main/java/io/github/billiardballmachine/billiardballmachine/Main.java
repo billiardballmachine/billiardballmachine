@@ -108,6 +108,7 @@ public class Main {
         frame.add(rootPanel);
 
         var fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File("./examples/"));
         fileChooser.setAcceptAllFileFilterUsed(false);
         var bbmFileFilter = new FileFilter() {
             @Override
