@@ -18,6 +18,11 @@ application {
     mainClass = 'io.github.billiardballmachine.billiardballmachine.Main'
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'io.github.billiardballmachine.billiardballmachine.Main'
+    }
+}
 
 test {
     useJUnitPlatform()
