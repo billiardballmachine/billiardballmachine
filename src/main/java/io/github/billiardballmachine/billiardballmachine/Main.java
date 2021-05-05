@@ -22,7 +22,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import java.awt.BorderLayout;
-import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -40,9 +39,8 @@ public class Main {
         var frame = new JFrame("Billiard Ball Machine");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-
         var rootPanel = new JPanel(new BorderLayout());
-        var machinePanel = new MachineGridPanel(machine, 0.2, 0, 40, ballImage);
+        var machinePanel = new MachineGridPanel(machine, 0, 0, 25, ballImage);
         rootPanel.add(machinePanel, BorderLayout.CENTER);
         rootPanel.add(createMachineControlToolBar(machinePanel), BorderLayout.NORTH);
 
@@ -95,9 +93,9 @@ public class Main {
         );
         machineEditorToolBar.add(deleteButton);
         machineEditorToolBar.add(new JLabel("Other: "));
-        var clearButton = new JToggleButton("Pan");
+        var clearButton = new JToggleButton("None");
         clearButton.addActionListener(e -> {
-            machinePanel.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+            machinePanel.setCursor(null);
             machinePanel.setHoverIcon(null, null);
             machinePanel.setEditMachineCommand(null);
             machinePanel.repaint();
@@ -224,9 +222,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         var machine = Machine.emptyMachine();
         var ballImage = ImageIO.read(Main.class.getResource("billiard_ball.png"));
-        machine.addBall(new Ball(CardinalDirection.EAST), new Machine.Position(0, 0));
-        machine.addWall(DiagonalWall.NORTHWEST_TO_SOUTHEAST, new Machine.Position(1, 1));
-        machine.addWall(DiagonalWall.SOUTHWEST_TO_NORTHEAST, new Machine.Position(0, 0));
         SwingUtilities.invokeLater(() -> {
             try {
                 createAndShowUI(machine, ballImage);
