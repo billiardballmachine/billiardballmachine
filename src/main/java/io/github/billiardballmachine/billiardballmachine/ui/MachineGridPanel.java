@@ -49,7 +49,7 @@ public class MachineGridPanel extends JPanel implements MouseInputListener {
     // TODO: consider if this should be an int
     private double gridUnitLength;
 
-    private Timer animationTimer = new Timer(100, null);
+    private Timer animationTimer = new Timer(500, null);
 
     public MachineGridPanel(
             Machine machine,
