@@ -66,6 +66,44 @@ public class MachineGridPanel extends JPanel implements MouseInputListener, Mous
         addMouseListener(this);
         addMouseMotionListener(this);
         addMouseWheelListener(this);
+        addKeyBinding(KeyStroke.getKeyStroke("DOWN"),  "panSouth", this::panSouth);
+        addKeyBinding(KeyStroke.getKeyStroke("UP"),    "panNorth", this::panNorth);
+        addKeyBinding(KeyStroke.getKeyStroke("LEFT"),  "panWest",  this::panWest);
+        addKeyBinding(KeyStroke.getKeyStroke("RIGHT"), "panEast",  this::panEast);
+    }
+
+    private void addKeyBinding(KeyStroke keystroke, String label, Runnable toRun) {
+        getInputMap().put(keystroke, label);
+        getActionMap().put(label, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                toRun.run();
+            }
+        });
+    }
+
+    public void panWest() {
+        centerX -= 1;
+        repaint();
+        revalidate();
+    }
+
+    public void panEast() {
+        centerX += 1;
+        repaint();
+        revalidate();
+    }
+
+    public void panNorth() {
+        centerY -= 1;
+        repaint();
+        revalidate();
+    }
+
+    public void panSouth() {
+        centerY += 1;
+        repaint();
+        revalidate();
     }
 
     public void setAnimationPeriod(int periodInMs) {
@@ -246,6 +284,7 @@ public class MachineGridPanel extends JPanel implements MouseInputListener, Mous
     @Override
     public void mouseClicked(MouseEvent e) {
         if (editMachineCommand == null) {
+            requestFocus();
             return;
         }
         var elem = machineElementForPoint(snapPoint(cachedGridData)); // TODO: cache some of this?
